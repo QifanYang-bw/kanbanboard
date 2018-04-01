@@ -1,3 +1,5 @@
+from schema import *
+
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy 
 
@@ -32,11 +34,15 @@ def add():
 
     return redirect(url_for('index'))
 
-@app.route('/complete/<id>')
-def complete(id):
+@app.route('/updatestat', methods=['POST'])
+def updatestat():
+    card_id = request.form.get('card_id', type=int)
+    new_section = request.form.get('new_section', type=str)
+    new_section_id = section_dict[new_section]
+    print('updatestat:', card_id, new_section, new_section_id)
 
-    task = Task.query.filter_by(id=int(id)).first()
-    task.status = 2
+    task = Task.query.filter_by(id=card_id).first()
+    task.status = new_section_id
     db.session.commit()
     
     return redirect(url_for('index'))
