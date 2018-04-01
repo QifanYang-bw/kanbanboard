@@ -1,6 +1,6 @@
 from schema import *
 
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, jsonify, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy 
 
 app = Flask(__name__)
@@ -28,24 +28,38 @@ def index():
 
 @app.route('/add', methods=['POST'])
 def add():
-    task = Task(text=request.form['todoitem'], status=0)
-    db.session.add(task)
-    db.session.commit()
+    try:
+        text = request.form.get('card_text', type=str)
+        print(text, request.form)
 
-    return redirect(url_for('index'))
+        task = Task(text=text, status=0)
+        db.session.add(task)
+        db.session.commit()
+
+        return jsonify({
+            "status":"success",
+            "err":None,
+            "card_id":str(task.id),
+            "session":section_dict_rev[0],
+            "text":task.text
+        })
+    except Exception as e:
+        return jsonify({"status":"fail", "err":str(e)})
 
 @app.route('/updatestat', methods=['POST'])
 def updatestat():
-    card_id = request.form.get('card_id', type=int)
-    new_section = request.form.get('new_section', type=str)
-    new_section_id = section_dict[new_section]
-    print('updatestat:', card_id, new_section, new_section_id)
+    try:
+        card_id = request.form.get('card_id', type=int)
+        section = request.form.get('section', type=str)
+        section_id = section_dict[section]  
 
-    task = Task.query.filter_by(id=card_id).first()
-    task.status = new_section_id
-    db.session.commit()
-    
-    return redirect(url_for('index'))
+        task = Task.query.filter_by(id=card_id).first()
+        task.status = section_id
+        db.session.commit()
+        
+        return jsonify({"status":"success", "err":None})
+    except Exception as e:
+        return jsonify({"status":"fail", "err":str(e)})
 
 if __name__ == '__main__':
     app.run(debug = True)

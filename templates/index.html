@@ -28,7 +28,7 @@
             font-size: 12pt;
             text-align: center;
         }
-        .card {
+        .card, .placeholder {
             display: inline-block;
             vertical-align: top;
             margin: 10px 5px;
@@ -42,6 +42,16 @@
             font-family: "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
             box-shadow: 2px 2px 2px #eee;
         }
+        .placeholder {
+            border: 1px solid orange;
+            border-style: dashed;
+            background-color: transparent;
+        }
+        .hide-placeholder{
+            .myPlaceholder {
+                visibility:hidden;/*display:none*/
+            }
+        }
     </style>
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
@@ -50,6 +60,8 @@
             var dragItem, dragTarget;
             $( "#todo, #doing, #done" ).sortable({
                 connectWith: ".section",
+                placeholder: "placeholder myPlaceholder",
+                greedy: true,
                 over: function( event, ui ) {
                     $(this).addClass("droppable");
                 },
@@ -59,12 +71,11 @@
                 receive: function( event, ui ) {
                     dragItem = ui.item.attr("id");
                     dragTarget = this.id;
-                    //dragTarget = ui.helper.id
                     $.ajax({
                         url: '/updatestat',
                         data: {
                             'card_id': dragItem, 
-                            'new_section': dragTarget
+                            'section': dragTarget
                         },
                         type: 'POST',
                         success: function(response) {
@@ -74,9 +85,46 @@
                             console.log(error);
                         }
                     });
-                    console.log(dragItem + ' ' + dragTarget)
+                    //console.log(dragItem + ' ' + dragTarget)
                 },
             }).disableSelection();
+
+            // $('body').droppable({
+            //     over: function( event, ui ){
+            //         $(this).parent().addClass("hide-placeholder")
+            //     },
+            //     out: function( event, ui ){
+            //         $(this).parent().removeClass("hide-placeholder")
+            //     },
+            //     drop: function ( event, ui ) {          
+            //         ui.draggable.remove();
+            //     }
+            // });
+
+            // Can't submit form here since it would result in name and
+            // value being separately inserted.
+            // e.g. [{'name': 'todoitem', 'value': 'test'}]
+            $("#add_item").submit(function(e){
+                e.preventDefault();
+                $.ajax({
+                    url: '/add',
+                    type: 'POST',
+                    data: $("#add_item").serialize(),
+                    success: function(data) {
+                        console.log(data);
+                        $('#' + data.session).append(
+                            "<div id=\'" + 
+                            data.card_id +
+                            "\' class=\'card\'>" +
+                            data.text +
+                            "</div>"
+                        );
+                    },
+                    error: function(error) {
+                        console.log(error);
+                    }
+                });
+            });
         } );
     </script>
 </head>
@@ -84,8 +132,8 @@
     <h1>Kanban Board</h1>
     
     <div>Add a new todo item: 
-        <form action="{{ url_for('add') }}" method="POST">
-            <input type="text" name="todoitem">
+        <form id="add_item" action="">
+            <input type="text" name="card_text">
             <input type="submit" value="Add Item">
         </form>
     </div>
