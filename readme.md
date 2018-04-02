@@ -62,5 +62,3 @@ print('-' * 25)
 print("\n Result of test")
 print(respons.status_code, respons.reason)
 ```
-
-
