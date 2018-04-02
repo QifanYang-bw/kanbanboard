@@ -13,6 +13,9 @@ source .venv/bin/activate
 pip3 install -r requirements.txt
 python3 app.py
 ```
+- Existing users (Feel free to register more):
+-- Username: admin, Password: admin
+-- Username: zitong, Password: 123456
 
 ### Conduct unittest with:
 ```
