@@ -19,7 +19,7 @@ python3 app.py
 
 ### Conduct unittest with:
 ```
-python3 -m unittest
+python3 -m unittest discover
 ```
 
 ## Description
