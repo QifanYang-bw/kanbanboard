@@ -1,140 +1,11 @@
 {% extends "base.html" %}
 
-<head>
-
     {% block head %}
-    <style>
-        #board {
-            display: table;
-            margin: 0;
-            padding: 0;
-            border-spacing: 5px;
-        }
-        .section {
-            display: table-cell;
-            margin: 0;
-            border: 1px solid #666;
-            padding: 5px;
-            width: 300px;
-        }
-        .section.droppable {
-            border: 1px dashed #666;
-        }
-        .section > h1 {
-            margin: 0;
-            border-bottom: 1px solid #999;
-            padding: 0;
-            font-size: 12pt;
-            text-align: center;
-        }
-        .card, .placeholder {
-            display: inline-block;
-            vertical-align: top;
-            margin: 10px 5px;
-            padding: 10px;
-            width: 100px;
-            height: 100px;
-            color: black;
-            background: #ff8;
-            cursor: move;
-            text-align: center;
-            font-family: "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
-            box-shadow: 2px 2px 2px #eee;
-        }
-        .placeholder {
-            border: 1px solid orange;
-            border-style: dashed;
-            background-color: transparent;
-        }
-        .hide-placeholder{
-            .myPlaceholder {
-                visibility:hidden;/*display:none*/
-            }
-        }
-    </style>
-    <script>
-        $( function() {
-            var dragItem, dragTarget;
-            $( "#todo, #doing, #done" ).sortable({
-                connectWith: ".section",
-                placeholder: "placeholder myPlaceholder",
-                greedy: true,
-                over: function( event, ui ) {
-                    $(this).addClass("droppable");
-                },
-                out: function( event, ui ) {
-                    $(this).removeClass("droppable");
-                },
-                receive: function( event, ui ) {
-                    dragItem = ui.item.attr("id");
-                    dragTarget = this.id;
-                    $.ajax({
-                        url: '/updatestat',
-                        data: {
-                            'card_id': dragItem, 
-                            'section': dragTarget
-                        },
-                        type: 'POST',
-                        success: function(response) {
-                            console.log(response);
-                        },
-                        error: function(error) {
-                            console.log(error);
-                        }
-                    });
-                    //console.log(dragItem + ' ' + dragTarget)
-                },
-            }).disableSelection();
-
-            // $('body').droppable({
-            //     over: function( event, ui ){
-            //         $(this).parent().addClass("hide-placeholder")
-            //     },
-            //     out: function( event, ui ){
-            //         $(this).parent().removeClass("hide-placeholder")
-            //     },
-            //     drop: function ( event, ui ) {          
-            //         ui.draggable.remove();
-            //     }
-            // });
-
-            // Can't submit form here since it would result in name and
-            // value being separately inserted.
-            // e.g. [{'name': 'todoitem', 'value': 'test'}]
-            $("#add_item").submit(function(e){
-                e.preventDefault();
-                $.ajax({
-                    url: '/add',
-                    type: 'POST',
-                    data: $("#add_item").serialize(),
-                    success: function(data) {
-                        console.log(data);
-                        $('#' + data.session).append(
-                            "<div id=\'" + 
-                            data.card_id +
-                            "\' class=\'card\'>" +
-                            data.text +
-                            "</div>"
-                        );
-                    },
-                    error: function(error) {
-                        console.log(error);
-                    }
-                });
-            });
-        } );
-    </script>
+    <link rel="stylesheet" href="/static/styles/kanban.css">
+    <script src="/static/js/kanban.js"></script>
     {% endblock %}
-</head>
-<body>
 
     {% block content %}
-    <div>Add a new todo item: 
-        <form id="add_item" action="">
-            <input type="text" name="card_text">
-            <input type="submit" value="Add Item">
-        </form>
-    </div>
     <div id="board">
         <div id="todo" class="section">
             <h1>To Do</h1>
@@ -154,8 +25,16 @@
                 <div id="{{ task.id }}" class="card">{{ task.text }}</div>
             {% endfor %}
         </div>
+        <div id="remove" class="section small">
+            <h1>Dust Bin</h1>
+        </div>
+    </div>
+
+    <div> 
+        <form id="add_item" action="">
+            <input type="text" name="card_text" placeholder="Add a new item..">
+            <input type="submit" value="Submit">
+        </form>
     </div>
     {% endblock %}
  
-</body>
-</html>

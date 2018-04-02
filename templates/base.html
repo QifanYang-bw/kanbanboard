@@ -6,30 +6,31 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
         <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-        <title>Welcome to Kanban Board</title>
+        <title>Kanban Board</title>
+        <link rel="stylesheet" href="/static/styles/base.css">
         {% block head %}
         {% endblock %}
     </head>
     <body>
-        <div>
-            Kanban Board:
-            <a href="{{ url_for('index') }}">Home</a>
-            {% if current_user.is_anonymous %}
-            <a href="{{ url_for('login') }}">Login</a>
-            {% else %}
-            <a href="{{ url_for('logout') }}">Logout</a>
-            {% endif %}
+        <div class="header">
+            <div id='base_header'><h1>Kanban Board</h1></div>
+            <div id='base_userinfo'>
+                {% if current_user.is_authenticated %}
+                    Welcome back, {{ current_user.username }}!
+                {% else %}
+                    Welcome to Kanban Board!
+                {% endif %}
+                <a href="{{ url_for('index') }}">Home</a>
+                {% if current_user.is_anonymous %}
+                    <a href="{{ url_for('login') }}">Login</a>
+                {% else %}
+                    <a href="{{ url_for('logout') }}">Logout</a>
+                {% endif %}
+            </div>
         </div>
         <hr>
-        {% with messages = get_flashed_messages() %}
-        {% if messages %}
-        <ul>
-            {% for message in messages %}
-            <li>{{ message }}</li>
-            {% endfor %}
-        </ul>
-        {% endif %}
-        {% endwith %}
-        {% block content %}{% endblock %}
+        <div class='content'>
+            {% block content %}{% endblock %}
+        <div>
     </body>
 </html>
