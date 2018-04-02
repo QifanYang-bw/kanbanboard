@@ -1,4 +1,44 @@
+# Kanban Board
+
+## Github repo (Still updating!)
+
+https://github.com/QifanYang-bw/kanbanboard
+
+## Execution
+
+### Run the code with:
+```
+python3 -m venv .venv
+source .venv/bin/activate
+pip3 install -r requirements.txt
+python3 app.py
+```
+
+### Conduct unittest with:
+```
+python3 -m unittest
+```
+
+## Description
+
+A nice Kanban Board Server + Client application using Flask + SQLAlchemy + JQuery with AJAX. General Features include:
+
+- Add/Move/Delete Tasks
+- User Login/Register/Logout 
+
+## Highlights
+
+- Task Drag-and-Drop feature!
+- Separate Task Record for Each User
+- Saved data regardless of the state of client
+- Encrypted Password Record in Server
+- Fancy CSS Design
+
+---
+
 # Session 13_1
+
+Preclass work:
 
 ## Init
 ```
@@ -22,8 +62,3 @@ print('-' * 25)
 print("\n Result of test")
 print(respons.status_code, respons.reason)
 ```
-
-# Kanban Board
-
-Github repo:
-https://github.com/QifanYang-bw/kanbanboard
