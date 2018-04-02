@@ -1,0 +1,49 @@
+* {
+    margin: 0px;
+    padding: 0px;
+}
+
+.header {
+    /*text-align:justify; */
+    background: #eee;
+
+    padding: 30px 30px;
+    display: flex;
+    justify-content: space-between;
+}
+#base_header {
+    display: inline-block;
+}
+#base_userinfo {
+    display: inline-block;
+    padding-top: 10px;
+    text-align: center;
+    line-height: 100%;
+    /*background-color:#fff;*/
+}
+.content {
+    padding: 30px 100px;
+}
+
+input[type=text], input[type=password], select {
+    width: 400px;
+    padding: 12px 20px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}           
+input[type=submit] {
+    width: 400px;
+    background-color: #4CAF50;
+    color: white;
+    padding: 14px 20px;
+    margin: 8px 0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}           
+input[type=submit]:hover {
+    background-color: #45a049;
+}
