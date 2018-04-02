@@ -8,12 +8,16 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 
 app = Flask(__name__)
-
 app.config['SECRET_KEY'] = 'I dont know how this works'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///schema.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///schema.db'
 
 db = SQLAlchemy(app)
+
+# with app.test_request_context():
+#     db.create_all()
+
+
 
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
@@ -56,7 +60,7 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
-    posts = db.relationship('Post', backref='author', lazy='dynamic')
+    #tasks = db.relationship('Task', backref='person', lazy=True)
 
     def __repr__(self):
         return '<User {}>'.format(self.username)
@@ -72,20 +76,21 @@ class User(UserMixin, db.Model):
 def load_user(id):
     return User.query.get(int(id))
 
-class Post(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    body = db.Column(db.String(140))
-    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+# class Post(db.Model):
+#     id = db.Column(db.Integer, primary_key=True)
+#     body = db.Column(db.String(140))
+#     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+#     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
-    def __repr__(self):
-        return '<Post {}>'.format(self.body)
+#     def __repr__(self):
+#         return '<Post {}>'.format(self.body)
 
 class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     text = db.Column(db.String(200))
     status = db.Column(db.Integer)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    person_id = db.Column(db.Integer, db.ForeignKey('user.id'),
+        nullable=True)
 
 #-------------------------------------------------------
 
@@ -93,9 +98,9 @@ class Task(db.Model):
 @app.route('/index')
 @login_required
 def index():
-    stat_todo = Task.query.filter_by(status=0).all()
-    stat_doing = Task.query.filter_by(status=1).all()
-    stat_done = Task.query.filter_by(status=2).all()
+    stat_todo = Task.query.filter_by(status=0, person_id=current_user.id).all()
+    stat_doing = Task.query.filter_by(status=1, person_id=current_user.id).all()
+    stat_done = Task.query.filter_by(status=2, person_id=current_user.id).all()
 
     return render_template('index.html', 
                            todo=stat_todo, 
@@ -106,9 +111,9 @@ def index():
 def add():
     try:
         text = request.form.get('card_text', type=str)
-        print(text, request.form)
+        print(text, request.form, current_user.id)
 
-        task = Task(text=text, status=0)
+        task = Task(text=text, status=0, person_id=current_user.id)
         db.session.add(task)
         db.session.commit()
 
@@ -137,6 +142,18 @@ def updatestat():
     except Exception as e:
         return jsonify({"status":"fail", "err":str(e)})
 
+@app.route('/remove', methods=['POST'])
+def remove():
+    try:
+        card_id = request.form.get('card_id', type=int)
+
+        task = Task.query.filter_by(id=card_id).first()
+        db.session.delete(task)
+        db.session.commit()
+        
+        return jsonify({"status":"success", "err":None})
+    except Exception as e:
+        return jsonify({"status":"fail", "err":str(e)})
 #-------------------------------------------------------
 
 
